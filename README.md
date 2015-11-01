@@ -1,7 +1,12 @@
-# Docker Images from Oracle
+# Weblogic 10.3.6 Docker Images
 
-This repository stores Docker images for Oracle products.
+Based on previous Weblogic 10.3.6 files from the official Oracle
+[`Weblogic Docker repo`](https://github.com/oracle/docker) before they
+were deleted. See docs for office files for more information.
 
-Oracle Linux images can be found in the [`OracleLinux-images`](https://github.com/oracle/docker/tree/OracleLinux-images) branch of this repository.
+The repo has changes for 10.3.6 on the 10.3.6updates branch, and also
+adds Dockerfile and domain setup for Weblogic Portal 10.3.6 (work in progress).
 
-For support and certification information, please consult the documentation for each image.
+See /OracleWeblogic/dockerfiles/10.3.6, /OracleWeblogic/dockerfiles/10.3.6wlp,
+and /OracleWeblogic/samples/11g-domain and
+/OracleWeblogic/samples/wlp10.3.6domain
