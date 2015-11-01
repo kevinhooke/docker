@@ -1,31 +1,23 @@
-# LICENSE CDDL 1.0 + GPL 2.0
-#
-# ORACLE DOCKERFILES PROJECT
-# --------------------------
-# This Dockerfile extends an Oracle WebLogic image by creating a sample domain.
-# Util scripts are copied into the image enabling users to plug NodeManager
-# magically into the AdminServer running on another container as a Machine.
+# Docker file adding an empty/default WLP domain to the base WLP Image
 #
 # HOW TO BUILD THIS IMAGE
 # -----------------------
-# Put all downloaded files in the same directory as this Dockerfile
 # Run:
-#      $ sudo docker build -t myweblogic .
+#      $ sudo docker build -t wlpdomain1 .
 #
+# (or replace wlpdomain1 with your own name for this container)
 
-# Pull base image
-# ---------------
-#kh use image created from script with generic jar
-#FROM oracle/weblogic:10.3.6-dev
-FROM oracle/weblogic:10.3.6
+# Pull base WLP 10.3.6 image (already built from buildDockerImage.sh script)
+# --------------------------
+FROM oracle/weblogic:10.3.6wlp
 
 # Maintainer
 # ----------
-MAINTAINER Bruno Borges <bruno.borges@oracle.com>
+MAINTAINER Kevin Hooke <kevin.hooke@gmail.com>
 
 # WLS Admin Password (change it!)
 # -------------------------------
-ENV ADMIN_PASSWORD welcome1
+ENV ADMIN_PASSWORD password1
 
 # WLS Ports
 # ----------------------------------------------------------
