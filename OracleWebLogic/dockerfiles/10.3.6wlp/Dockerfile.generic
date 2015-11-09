@@ -1,5 +1,5 @@
 # Modified Dockerfile for Weblogic Portal 10.3.6
-# Based on Oracle Dockerfiles project: https://github.com/oracle/docker
+# Based on official Oracle Dockerfile project: https://github.com/oracle/docker
 #
 # You can go into 'samples/wlp10.3.6domain' after building the developer raw image
 # and build that image, for example:
@@ -14,7 +14,7 @@
 # (2) jdk-6u45-linux-x64.rpm.bin (or other version as needed)
 # Download from http://www.oracle.com/technetwork/java/javase/downloads/index.html
 #
-# Pull base image
+# Pull base Oracle Linux 6 image
 # ---------------
 FROM oraclelinux:6
 
@@ -24,7 +24,6 @@ MAINTAINER Kevin Hooke <kevin.hooke@gmail.com>
 
 # Environment variables required for this build (do NOT change)
 # --------------------------------------------------------------
-ENV JAVA_RPM jdk-6u45-linux-x64-rpm.bin
 ENV WLS_PKG portal103_generic.jar
 ENV JAVA_HOME /usr/java/default
 ENV CONFIG_JVM_ARGS -Djava.security.egd=file:/dev/./urandom
@@ -33,6 +32,10 @@ ENV MW_HOME /u01/oracle/weblogic
 ENV SILENT_XML wlp_silent.xml
 ENV USER_MEM_ARGS -Xms512m -Xmx1024m -XX:MaxPermSize=400m
 ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/u01/oracle/weblogic/wlserver/server/native/linux/x86_64
+
+# Env var for name of Java installable - change if using different version
+# --------------------------------------------------------------
+ENV JAVA_RPM jdk-6u45-linux-x64-rpm.bin
 
 # Setup required packages (unzip), filesystem, and oracle user
 # ------------------------------------------------------------
@@ -47,11 +50,24 @@ COPY $SILENT_XML /u01/
 
 # Install and configure Oracle JDK
 # -------------------------------------
+#If installing from .rpm then use these next lines:
 #RUN rpm -ivh /u01/$JAVA_RPM && \
 #    rm /u01/$JAVA_RPM
+#If installing from executable .bin use these next two lines:
 RUN chmod +x /u01/$JAVA_RPM
 RUN ./u01/$JAVA_RPM && \
     rm /u01/$JAVA_RPM
+
+# Other installs
+# --------------------------------------------------------------
+# which - used by some wlp .sh scripts (e.g. config.sh)
+RUN yum install -y which
+# xwindows/xterm for Weblogic utils that only have a graphical mode
+# (eg config_builder.sh)
+#run with -e DISPLAY=ip-of-vbox-interface:0
+RUN yum install -y xterm
+# needed for WLS gui apps to run under XWindows
+RUN yum install libXtst
 
 # Adjust file permissions, go to /u01 as user 'oracle' to proceed with WLS installation
 # -------------------------------------
