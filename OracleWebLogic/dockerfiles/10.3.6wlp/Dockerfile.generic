@@ -67,7 +67,7 @@ RUN yum install -y which
 #run with -e DISPLAY=ip-of-vbox-interface:0
 RUN yum install -y xterm
 # needed for WLS gui apps to run under XWindows
-RUN yum install libXtst
+RUN yum install -y libXtst
 
 # Adjust file permissions, go to /u01 as user 'oracle' to proceed with WLS installation
 # -------------------------------------
