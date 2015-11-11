@@ -36,7 +36,9 @@ RUN chown oracle /u01/oracle/*.py && \
     chown oracle /u01/oracle/*.sh && \
     chgrp oracle /u01/oracle/*.sh && \
     chown oracle /u01/oracle/*.jar && \
-    chgrp oracle /u01/oracle/*.jar
+    chgrp oracle /u01/oracle/*.jar &&\
+    chown oracle /u01/oracle/*.jks && \
+    chgrp oracle /u01/oracle/*.jks
 RUN echo ". /u01/oracle/weblogic/user_projects/domains/portal_domain/bin/setDomainEnv.sh" >> /root/.bashrc && \
     echo "export PATH=$PATH:/u01/oracle/weblogic/wlserver/server/bin:/u01/oracle/weblogic/wlserver/common/bin:/u01/oracle/weblogic/user_projects/domains/portal_domain/bin" >> /root/.bashrc
 
@@ -47,6 +49,7 @@ WORKDIR /u01/oracle/weblogic
 #create domain from WLP domain template then run create_db.sh script to create portal dbs
 RUN /u01/oracle/weblogic/wlserver/common/bin/wlst.sh -skipWLSModuleScanning /u01/oracle/create-wls-domain.py && \
     /u01/oracle/weblogic/user_projects/domains/portal_domain/create_db.sh && \
+    cp /u01/oracle/*.jks /u01/oracle/weblogic/user_projects/domains/portal_domain && \
     echo ". /u01/oracle/weblogic/user_projects/domains/portal_domain/bin/setDomainEnv.sh" >> /u01/oracle/.bashrc && \
     echo "export PATH=$PATH:/u01/oracle/weblogic/wlserver/server/bin:/u01/oracle/weblogic/wlserver/common/bin:/u01/oracle/weblogic/user_projects/domains/portal_domain/bin" >> /u01/oracle/.bashrc
 
