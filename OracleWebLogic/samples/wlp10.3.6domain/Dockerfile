@@ -49,9 +49,12 @@ WORKDIR /u01/oracle/weblogic
 #create domain from WLP domain template then run create_db.sh script to create portal dbs
 RUN /u01/oracle/weblogic/wlserver/common/bin/wlst.sh -skipWLSModuleScanning /u01/oracle/create-wls-domain.py && \
     /u01/oracle/weblogic/user_projects/domains/portal_domain/create_db.sh && \
-    cp /u01/oracle/*.jks /u01/oracle/weblogic/user_projects/domains/portal_domain && \
+    cp /u01/oracle/weblogic/wlserver_10.3/server/lib/*.jks /u01/oracle/weblogic/user_projects/domains/portal_domain && \
     echo ". /u01/oracle/weblogic/user_projects/domains/portal_domain/bin/setDomainEnv.sh" >> /u01/oracle/.bashrc && \
     echo "export PATH=$PATH:/u01/oracle/weblogic/wlserver/server/bin:/u01/oracle/weblogic/wlserver/common/bin:/u01/oracle/weblogic/user_projects/domains/portal_domain/bin" >> /u01/oracle/.bashrc
+
+#    cp /u01/oracle/*.jks /u01/oracle/weblogic/user_projects/domains/portal_domain && \
+
 
 #original steps - not needed as creating from a template    mkdir -p /u01/oracle/weblogic/user_projects/domains/portal_domain/servers/AdminServer/security && \
 #    echo "username=weblogic" > /u01/oracle/weblogic/user_projects/domains/portal_domain/servers/AdminServer/security/boot.properties && \
@@ -65,6 +68,12 @@ EXPOSE $NM_PORT $ADMIN_PORT $ADMIN_PORT_SSL
 WORKDIR /u01/oracle
 
 ENV PATH $PATH:/u01/oracle/weblogic/wlserver/server/bin:/u01/oracle/weblogic/wlserver/common/bin:/u01/oracle/weblogic/user_projects/domains/portal_domain/bin:/u01/oracle
+
+# run script to add required Portal shared libraries
+RUN . /u01/oracle/weblogic/user_projects/domains/portal_domain/bin/setDomainEnv.sh && \
+    /u01/oracle/startServer.sh && \
+    /u01/oracle/weblogic/wlserver/common/bin/wlst.sh -skipWLSModuleScanning /u01/oracle/waitForServerStart.py && \
+    /u01/oracle/addPortalSharedLibraries.sh
 
 # Define default command to start bash.
 CMD ["startWebLogic.sh"]

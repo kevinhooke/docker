@@ -62,12 +62,12 @@ RUN ./u01/$JAVA_RPM && \
 # --------------------------------------------------------------
 # which - used by some wlp .sh scripts (e.g. config.sh)
 RUN yum install -y which
-# xwindows/xterm for Weblogic utils that only have a graphical mode
-# (eg config_builder.sh)
+
+#if need to run WLS config apps in gui mode (eg config_builder.sh), uncomment these to add XWindows support
 #run with -e DISPLAY=ip-of-vbox-interface:0
-RUN yum install -y xterm
+#RUN yum install -y xterm
 # needed for WLS gui apps to run under XWindows
-RUN yum install -y libXtst
+#RUN yum install -y libXtst
 
 # Adjust file permissions, go to /u01 as user 'oracle' to proceed with WLS installation
 # -------------------------------------
