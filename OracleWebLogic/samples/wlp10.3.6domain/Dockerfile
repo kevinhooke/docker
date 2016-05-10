@@ -38,7 +38,9 @@ RUN chown oracle /u01/oracle/*.py && \
     chown oracle /u01/oracle/*.jar && \
     chgrp oracle /u01/oracle/*.jar &&\
     chown oracle /u01/oracle/*.jks && \
-    chgrp oracle /u01/oracle/*.jks
+    chgrp oracle /u01/oracle/*.jks && \
+    chmod +x /u01/oracle/*.sh
+    
 RUN echo ". /u01/oracle/weblogic/user_projects/domains/portal_domain/bin/setDomainEnv.sh" >> /root/.bashrc && \
     echo "export PATH=$PATH:/u01/oracle/weblogic/wlserver/server/bin:/u01/oracle/weblogic/wlserver/common/bin:/u01/oracle/weblogic/user_projects/domains/portal_domain/bin" >> /root/.bashrc
 
