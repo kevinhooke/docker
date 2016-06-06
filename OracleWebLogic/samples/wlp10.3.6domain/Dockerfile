@@ -40,7 +40,7 @@ RUN chown oracle /u01/oracle/*.py && \
     chown oracle /u01/oracle/*.jks && \
     chgrp oracle /u01/oracle/*.jks && \
     chmod +x /u01/oracle/*.sh
-    
+
 RUN echo ". /u01/oracle/weblogic/user_projects/domains/portal_domain/bin/setDomainEnv.sh" >> /root/.bashrc && \
     echo "export PATH=$PATH:/u01/oracle/weblogic/wlserver/server/bin:/u01/oracle/weblogic/wlserver/common/bin:/u01/oracle/weblogic/user_projects/domains/portal_domain/bin" >> /root/.bashrc
 
@@ -53,7 +53,8 @@ RUN /u01/oracle/weblogic/wlserver/common/bin/wlst.sh -skipWLSModuleScanning /u01
     /u01/oracle/weblogic/user_projects/domains/portal_domain/create_db.sh && \
     cp /u01/oracle/weblogic/wlserver_10.3/server/lib/*.jks /u01/oracle/weblogic/user_projects/domains/portal_domain && \
     echo ". /u01/oracle/weblogic/user_projects/domains/portal_domain/bin/setDomainEnv.sh" >> /u01/oracle/.bashrc && \
-    echo "export PATH=$PATH:/u01/oracle/weblogic/wlserver/server/bin:/u01/oracle/weblogic/wlserver/common/bin:/u01/oracle/weblogic/user_projects/domains/portal_domain/bin" >> /u01/oracle/.bashrc
+    echo "export PATH=$PATH:/u01/oracle/weblogic/wlserver/server/bin:/u01/oracle/weblogic/wlserver/common/bin:/u01/oracle/weblogic/user_projects/domains/portal_domain/bin" >> /u01/oracle/.bashrc && \
+    echo 'export JAVA_OPTIONS="$JAVA_OPTIONS -Djava.security.egd=file:/dev/./urandom"' >> /u01/oracle/.bashrc
 
 #    cp /u01/oracle/*.jks /u01/oracle/weblogic/user_projects/domains/portal_domain && \
 
