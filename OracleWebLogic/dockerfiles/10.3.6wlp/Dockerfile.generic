@@ -1,11 +1,13 @@
 # Modified Dockerfile for Weblogic Portal 10.3.6
 # Based on official Oracle Dockerfile project: https://github.com/oracle/docker
 #
-# You can go into 'samples/wlp10.3.6domain' after building the developer raw image
-# and build that image, for example:
+# Build using: buildDockerImage.sh -v 10.3.6wlp
+#
+# After building, go into 'samples/wlp10.3.6domain' and build the next image that
+# creates a WLP 10.3.6 domain, for example:
 #
 #   $ cd samples/wlp10.3.6domain
-#   $ sudo docker build -t wlpdomain1:10.3.6 .
+#   $ docker build -t wlpdomain1 .
 #
 # REQUIRED FILES TO BUILD THIS IMAGE
 # ----------------------------------
@@ -30,7 +32,7 @@ ENV CONFIG_JVM_ARGS -Djava.security.egd=file:/dev/./urandom
 ENV BEA_HOME /u01/oracle/weblogic
 ENV MW_HOME /u01/oracle/weblogic
 ENV SILENT_XML wlp_silent.xml
-ENV USER_MEM_ARGS -Xms512m -Xmx1024m -XX:MaxPermSize=400m
+ENV USER_MEM_ARGS -Xms1024m -Xmx1024m -XX:PermSize=128m -XX:MaxPermSize=512m
 ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/u01/oracle/weblogic/wlserver/server/native/linux/x86_64
 
 # Env var for name of Java installable - change if using different version
@@ -58,17 +60,6 @@ RUN chmod +x /u01/$JAVA_RPM
 RUN ./u01/$JAVA_RPM && \
     rm /u01/$JAVA_RPM
 
-# Other installs
-# --------------------------------------------------------------
-# which - used by some wlp .sh scripts (e.g. config.sh)
-RUN yum install -y which
-
-#if need to run WLS config apps in gui mode (eg config_builder.sh), uncomment these to add XWindows support
-#run with -e DISPLAY=ip-of-vbox-interface:0
-#RUN yum install -y xterm
-# needed for WLS gui apps to run under XWindows
-#RUN yum install -y libXtst
-
 # Adjust file permissions, go to /u01 as user 'oracle' to proceed with WLS installation
 # -------------------------------------
 RUN chown oracle:oracle -R /u01
@@ -76,7 +67,7 @@ RUN chown oracle:oracle -R /u01
 WORKDIR /u01
 USER oracle
 
-# Installation of Weblogic
+# Installation of Weblogic using silent install
 # -------------------------------------
 RUN java -jar $WLS_PKG -mode=silent -silent_xml=$SILENT_XML && \
     rm $WLS_PKG $SILENT_XML

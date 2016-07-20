@@ -3,7 +3,7 @@
 # HOW TO BUILD THIS IMAGE
 # -----------------------
 # Run:
-#      $ sudo docker build -t wlpdomain1 .
+#      $ docker build -t wlpdomain1 .
 #
 # (or replace wlpdomain1 with your own name for this container)
 
@@ -15,7 +15,7 @@ FROM oracle/weblogic:10.3.6wlp
 # ----------
 MAINTAINER Kevin Hooke <kevin.hooke@gmail.com>
 
-# WLS Admin Password (change it!)
+# WLS Admin Password
 # -------------------------------
 ENV ADMIN_PASSWORD password1
 
@@ -51,18 +51,27 @@ WORKDIR /u01/oracle/weblogic
 #create domain from WLP domain template then run create_db.sh script to create portal dbs
 RUN /u01/oracle/weblogic/wlserver/common/bin/wlst.sh -skipWLSModuleScanning /u01/oracle/create-wls-domain.py && \
     /u01/oracle/weblogic/user_projects/domains/portal_domain/create_db.sh && \
-    cp /u01/oracle/weblogic/wlserver_10.3/server/lib/*.jks /u01/oracle/weblogic/user_projects/domains/portal_domain && \
     echo ". /u01/oracle/weblogic/user_projects/domains/portal_domain/bin/setDomainEnv.sh" >> /u01/oracle/.bashrc && \
     echo "export PATH=$PATH:/u01/oracle/weblogic/wlserver/server/bin:/u01/oracle/weblogic/wlserver/common/bin:/u01/oracle/weblogic/user_projects/domains/portal_domain/bin" >> /u01/oracle/.bashrc && \
     echo 'export JAVA_OPTIONS="$JAVA_OPTIONS -Djava.security.egd=file:/dev/./urandom"' >> /u01/oracle/.bashrc
 
-#    cp /u01/oracle/*.jks /u01/oracle/weblogic/user_projects/domains/portal_domain && \
+#replace urandom in security properties
+USER root
+RUN sed -i 's/\/dev\/urandom/\/dev\/.\/urandom/g' /usr/java/default/jre/lib/security/java.security
 
+USER oracle
 
-#original steps - not needed as creating from a template    mkdir -p /u01/oracle/weblogic/user_projects/domains/portal_domain/servers/AdminServer/security && \
-#    echo "username=weblogic" > /u01/oracle/weblogic/user_projects/domains/portal_domain/servers/AdminServer/security/boot.properties && \
-#    echo "password=$ADMIN_PASSWORD" >> /u01/oracle/weblogic/user_projects/domains/portal_domain/servers/AdminServer/security/boot.properties && \
+#increase JTA timeount
+RUN . /u01/oracle/weblogic/user_projects/domains/portal_domain/bin/setDomainEnv.sh && \
+    /u01/oracle/startServer.sh && \
+    /u01/oracle/weblogic/wlserver/common/bin/wlst.sh -skipWLSModuleScanning /u01/oracle/waitForServerStart.py && \
+    /u01/oracle/weblogic/wlserver/common/bin/wlst.sh -skipWLSModuleScanning /u01/oracle/setJTATimeout.py
 
+# run script to add required Portal shared libraries (this list is Portal app specific)
+RUN . /u01/oracle/weblogic/user_projects/domains/portal_domain/bin/setDomainEnv.sh && \
+    /u01/oracle/startServer.sh && \
+    /u01/oracle/weblogic/wlserver/common/bin/wlst.sh -skipWLSModuleScanning /u01/oracle/waitForServerStart.py && \
+    /u01/oracle/addPortalSharedLibraries.sh
 
 # Expose Node Manager default port, and also default http/https ports for admin console
 EXPOSE $NM_PORT $ADMIN_PORT $ADMIN_PORT_SSL
@@ -71,12 +80,6 @@ EXPOSE $NM_PORT $ADMIN_PORT $ADMIN_PORT_SSL
 WORKDIR /u01/oracle
 
 ENV PATH $PATH:/u01/oracle/weblogic/wlserver/server/bin:/u01/oracle/weblogic/wlserver/common/bin:/u01/oracle/weblogic/user_projects/domains/portal_domain/bin:/u01/oracle
-
-# run script to add required Portal shared libraries
-RUN . /u01/oracle/weblogic/user_projects/domains/portal_domain/bin/setDomainEnv.sh && \
-    /u01/oracle/startServer.sh && \
-    /u01/oracle/weblogic/wlserver/common/bin/wlst.sh -skipWLSModuleScanning /u01/oracle/waitForServerStart.py && \
-    /u01/oracle/addPortalSharedLibraries.sh
 
 # Define default command to start bash.
 CMD ["startWebLogic.sh"]

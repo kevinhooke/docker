@@ -7,9 +7,35 @@
 # Author: kevin.hooke@gmail.com
 # ==============================================
 
-# Open preconfigured portal domain template
-# ======================
-readTemplate("/u01/oracle/portal_domain_10.3.6.jar")
+admin_port = int(os.environ.get("ADMIN_PORT", "7001"))
+admin_pass = os.environ.get("ADMIN_PASSWORD", "password1")
+
+#create domain from wls template, and add portal domain extension
+readTemplate("/u01/oracle/weblogic/wlserver_10.3/common/templates/domains/wls.jar")
+addTemplate("/u01/oracle/weblogic/wlportal_10.3/common/templates/applications/wlp.jar")
+
+# Configure the Administration Server and SSL port.
+# =========================================================
+cd('Servers/AdminServer')
+set('ListenAddress','0.0.0.0')
+set('ListenPort', admin_port)
+
+create('AdminServer','SSL')
+cd('SSL/AdminServer')
+set('Enabled', 'True')
+set('ListenPort', admin_port + 1)
+
+cd('/Servers/AdminServer/SSL/AdminServer')
+cmo.setHostnameVerificationIgnored(true)
+cmo.setHostnameVerifier(None)
+cmo.setTwoWaySSLEnabled(false)
+cmo.setClientCertificateEnforced(false)
+
+# Define the user password for weblogic
+# =====================================
+cd('/')
+cd('Security/base_domain/User/weblogic')
+cmo.setPassword(admin_pass)
 
 # Create and configure a JDBC Data Source, and sets the JDBC user
 # ===============================================================
